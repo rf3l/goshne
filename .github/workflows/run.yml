@@ -13,7 +13,7 @@ jobs:
       CHAT_ID: ${{ secrets.CHAT_ID }}
       DISCOUNT_THRESHOLD: 30
       LAT: ${{ secrets.LAT }}
-      LNG: ${{ secrets.LNG }}
+      LONG: ${{ secrets.LNG }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v4
