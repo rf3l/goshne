@@ -1,0 +1,22 @@
+name: run
+
+on:
+  schedule: 
+    - cron: '0 12 * * *'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_API: ${{ secrets.TELEGRAM_BOT_API }}
+      CHAT_ID: ${{ secrets.CHAT_ID }}
+      DISCOUNT_THRESHOLD: 30
+      LAT: ${{ secrets.LAT }}
+      LNG: ${{ secrets.LNG }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+      - run: pip install -r requirements.txt
+      - run: python main.py

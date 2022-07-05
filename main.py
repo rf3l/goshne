@@ -1,12 +1,12 @@
 import requests
 import json
 import os
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import hashlib
 from datetime import datetime
 import pytz
 
-load_dotenv()
+#load_dotenv()
 
 
 local_tz = pytz.timezone("Asia/Tehran")
