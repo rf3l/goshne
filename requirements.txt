@@ -1,2 +1,4 @@
- requests
- pytz
+requests
+python-dotenv~=0.20.0 
+pytz==2022.1
+sqlitedict~=2.0.0
