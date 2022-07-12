@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 db.sqlite
+config.local.yaml
+db.sqlite-journal
