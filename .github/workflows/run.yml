@@ -10,11 +10,11 @@ jobs:
   run:
     runs-on: ubuntu-latest
     env:
-      TELEGRAM_BOT_API: ${{ secrets.TELEGRAM_BOT_API }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_API }}
       CHAT_ID: ${{ secrets.CHAT_ID }}
       DISCOUNT_THRESHOLD: 30
       LAT: ${{ secrets.LAT }}
-      LONG: ${{ secrets.LNG }}
+      LNG: ${{ secrets.LNG }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v4

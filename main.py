@@ -10,17 +10,18 @@ from datetime import datetime, timedelta
 
 import pytz
 import requests
-import schedule
-import yaml
+#import schedule
+import os
+#import yaml
 #from dotenv import load_dotenv
-from sqlitedict import SqliteDict
+#from sqlitedict import SqliteDict
 
 #load_dotenv()
 
 local_tz = pytz.timezone("Asia/Tehran")
 
 TOMAN_FORMATTER = "{:,}"
-TEST = len(sys.argv) > 1 and sys.argv[1] == "-t"
+# TEST = len(sys.argv) > 1 and sys.argv[1] == "-t"
 
 # load emojist from resource/food-emojis.json
 with open("resource/food-emojis.json", encoding="UTF-8") as f:
@@ -44,14 +45,14 @@ HEADERS = {
 }
 
 # read config from yaml
-try:
-    with open("config/config.local.yaml", "r", encoding="UTF-8") as f:
-        CONFIG = yaml.load(f, Loader=yaml.FullLoader)
-except FileNotFoundError:
-    print("❗️ ERR: config.local.yaml not found")
-    sys.exit(1)
+# try:
+#     with open("config/config.local.yaml", "r", encoding="UTF-8") as f:
+#         CONFIG = yaml.load(f, Loader=yaml.FullLoader)
+# except FileNotFoundError:
+#     print("❗️ ERR: config.local.yaml not found")
+#     sys.exit(1)
 
-db = SqliteDict("storage/db.sqlite")
+# db = SqliteDict("storage/db.sqlite")
 
 
 def get_and_send(name, lat, long, chat_id, threshold=0):
@@ -85,19 +86,19 @@ def get_and_send(name, lat, long, chat_id, threshold=0):
                 + product["vendorTitle"].encode("utf-8")
             ).hexdigest()
 
-            if not TEST and product_hash in db:
-                if datetime.now(local_tz) - db[product_hash]["time"] < timedelta(
-                    days=1
-                ):
-                    continue
-                else:
-                    db[product_hash] = {
-                        "time": datetime.now(local_tz),
-                    }
-            else:
-                db[product_hash] = {
-                    "time": datetime.now(local_tz),
-                }
+            # if not TEST and product_hash in db:
+            #     if datetime.now(local_tz) - db[product_hash]["time"] < timedelta(
+            #         days=1
+            #     ):
+            #         continue
+            #     else:
+            #         db[product_hash] = {
+            #             "time": datetime.now(local_tz),
+            #         }
+            # else:
+            #     db[product_hash] = {
+            #         "time": datetime.now(local_tz),
+            #     }
 
             vendor_url = "https://snappfood.ir/restaurant/menu/" + product["vendorCode"]
             # fmt: off
@@ -113,7 +114,8 @@ def get_and_send(name, lat, long, chat_id, threshold=0):
 
             requests.post(
                 "https://api.telegram.org/bot"
-                + CONFIG["telegram"]["token"]
+                # + CONFIG["telegram"]["token"]
+                + os.getenv("TELEGRAM_TOKEN")
                 + "/sendPhoto",
                 data={
                     "chat_id": chat_id,
@@ -137,43 +139,50 @@ def get_and_send(name, lat, long, chat_id, threshold=0):
             )
 
 
+get_and_send(
+    name="GitHub",
+    lat=os.getenv("LAT"),
+    long=os.getenv("LNG"),
+    chat_id=os.getenv("CHAT_ID"),
+    threshold=int(os.getenv("DISCOUNT_THRESHOLD")),
+)
+
 # for each person in config peoples get_and_send
-def main():
-    try:
-        for person_name in CONFIG["peoples"]:
-            person = CONFIG["peoples"][person_name]
-            get_and_send(
-                name=person_name,
-                lat=person["lat"],
-                long=person["long"],
-                chat_id=person["chat_id"],
-                threshold=person.get("threshold", 0),
-            )
+# def main():
+#     try:
+#         for person_name in CONFIG["peoples"]:
+#             person = CONFIG["peoples"][person_name]
+#             get_and_send(
+#                 name=person_name,
+#                 lat=person["lat"],
+#                 long=person["long"],
+#                 chat_id=person["chat_id"],
+#                 threshold=person.get("threshold", 0),
+#             )
 
-            if TEST:
-                break
+#             if TEST:
+#                 break
 
-        # store db
-        db.commit()
-    except:
-        return False
+#         # store db
+#         db.commit()
+#     except:
+#         return False
 
+# if TEST:
+#     main()
+#     sys.exit(0)
 
-if TEST:
-    main()
-    sys.exit(0)
+# print(f"Running app every {CONFIG['schedule']['mins']} minutes...")
+# schedule.every(CONFIG["schedule"]["mins"]).minutes.do(main)
 
-print(f"Running app every {CONFIG['schedule']['mins']} minutes...")
-schedule.every(CONFIG["schedule"]["mins"]).minutes.do(main)
+# while 1:
+#     n = schedule.idle_seconds()
+#     if n is None:
+#         # no more jobs
+#         break
+#     elif n > 0:
+#         # sleep exactly the right amount of time
+#         time.sleep(n)
+#     schedule.run_pending()
 
-while 1:
-    n = schedule.idle_seconds()
-    if n is None:
-        # no more jobs
-        break
-    elif n > 0:
-        # sleep exactly the right amount of time
-        time.sleep(n)
-    schedule.run_pending()
-
-db.close()
+# db.close()
